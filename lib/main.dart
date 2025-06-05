@@ -49,34 +49,86 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Home')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: openUsageAccessSettings,
-          child: const Text('Grant Usage Access'),
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => const SecondScreen()),
-            // );
-
-
-          //child: const Text('Go to Second Screen'),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: openUsageAccessSettings,
+                child: const Text('Grant Usage Access'),
+              ),
+              const SizedBox(height: 16), // spacing between buttons
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SecondScreen()),
+                  );
+                },
+                child: const Text('Go to App selection menu!'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SecondScreen()),
+                  );
+                },
+                child: const Text('Start Monitoring'),
+              ),
+            ],
+          ),
         ),
-      ),
     );
   }
 }
 
-class SecondScreen extends StatelessWidget {
+
+
+
+class SecondScreen extends StatefulWidget {
   const SecondScreen({super.key});
+
+  @override
+  State<SecondScreen> createState() => _SecondScreenState();
+}
+
+class _SecondScreenState extends State<SecondScreen> {
+  // Simulated list of apps
+  final List<String> apps = ['Instagram', 'YouTube', 'TikTok', 'Snapchat', 'Reddit', 'Discord'];
+
+  // Track which apps are selected
+  final Set<String> selectedApps = {};
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Second Screen')),
-      body: const Center(
-        child: Text(
-          'Welcome to the second screen!',
-          style: TextStyle(fontSize: 24),
+      appBar: AppBar(
+        title: const Text('Select Apps to Block'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: apps.map((app) {
+            final isSelected = selectedApps.contains(app);
+            return FilterChip(
+              label: Text(app),
+              selected: isSelected,
+              selectedColor: Colors.red.shade200,
+              onSelected: (bool selected) {
+                setState(() {
+                  if (selected) {
+                    selectedApps.add(app);
+                  } else {
+                    selectedApps.remove(app);
+                  }
+                });
+              },
+            );
+          }).toList(),
         ),
       ),
     );
