@@ -8,10 +8,21 @@ import io.flutter.embedding.android.FlutterActivity
 //import android.app.usage.UsageStatsManager
 //import android.content.Context
 //import com.pravera.flutter_foreground_task.FlutterForegroundTaskPlugin
-//import io.flutter.embedding.engine.plugins.shim.ShimPluginRegistry
 
-class MainActivity: FlutterActivity()
-//
+import io.flutter.embedding.engine.plugins.shim.ShimPluginRegistry
+import com.focus.app_of_focus.AppStatusPlugin
+
+class MainActivity : FlutterActivity() {
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        FlutterForegroundTask.setPluginRegistrant { flutterEngine ->
+            // Register your plugin for background isolates
+            val shimRegistry = ShimPluginRegistry(flutterEngine)
+            AppStatusPlugin.registerWith(shimRegistry.registrarFor("com.focus.app_of_focus.AppStatusPlugin"))
+        }
+    }
+}
+
 //class MainActivity : FlutterActivity() {
 //    private val CHANNEL = "app_status"
 //

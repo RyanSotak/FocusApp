@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:device_apps/device_apps.dart';
+//import 'package:device_apps/device_apps.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
@@ -41,7 +41,6 @@ Future<void> checkIfAppInForeground(String packageName) async {
 }
 
 
-
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
@@ -62,7 +61,7 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> startForegroundService() async {
-  if (await Permission.notification.isDenied) {
+  if (Platform.isAndroid && await Permission.notification.isDenied) {
     await Permission.notification.request();
   }
 
