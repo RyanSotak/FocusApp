@@ -4,6 +4,9 @@ import 'package:device_apps/device_apps.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:isolate';
+
 
 void foregroundTaskCallback() async {
   const channel = MethodChannel('app_status');
@@ -38,7 +41,12 @@ Future<void> checkIfAppInForeground(String packageName) async {
 }
 
 
-void main() => runApp(const MyApp());
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
+}
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -54,13 +62,20 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> startForegroundService() async {
+  if (await Permission.notification.isDenied) {
+    await Permission.notification.request();
+  }
+
   FlutterForegroundTask.init(
     androidNotificationOptions: AndroidNotificationOptions(
       channelId: 'monitoring_channel_id',
       channelName: 'App Monitoring',
       channelDescription: 'Checks if a target app is running',
-      channelImportance: NotificationChannelImportance.LOW,
-      priority: NotificationPriority.LOW,
+      playSound: true,
+      enableVibration: true,
+      showWhen: true,
+      channelImportance: NotificationChannelImportance.HIGH,
+      priority: NotificationPriority.HIGH,
       iconData: const NotificationIconData(
         resType: ResourceType.mipmap,
         resPrefix: ResourcePrefix.ic,
@@ -77,10 +92,10 @@ Future<void> startForegroundService() async {
   );
 
   // Now safe to call
-  await FlutterForegroundTask.saveData(key: 'callbackHandle', value: foregroundTaskCallback);
   await FlutterForegroundTask.startService(
     notificationTitle: 'Monitoring App',
     notificationText: 'Checking if target app is open...',
+    callback: callbackDispatcher,
   );
 }
 
@@ -129,5 +144,45 @@ class SecondScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  FlutterForegroundTask.setTaskHandler(MyTaskHandler());
+}
+
+class MyTaskHandler extends TaskHandler {
+  @override
+  Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
+    print('[MyTaskHandler] Started at $timestamp');
+  }
+
+  @override
+  Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
+    // This runs periodically in the background
+    const channel = MethodChannel('app_status');
+    try {
+      final isRunning = await channel.invokeMethod('isAppInForeground', {
+        'packageName': 'com.whatsapp',
+      });
+      print('App in foreground: $isRunning');
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  @override
+  Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
+    print('[MyTaskHandler] Destroyed at $timestamp');
+  }
+
+  @override
+  void onButtonPressed(String id) {
+    print('[MyTaskHandler] Button pressed: $id');
+  }
+
+  @override
+  void onNotificationPressed() {
+    print('[MyTaskHandler] Notification pressed');
   }
 }

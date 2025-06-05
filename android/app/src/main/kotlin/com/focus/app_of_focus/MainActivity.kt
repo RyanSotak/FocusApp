@@ -1,12 +1,12 @@
 package com.focus.app_of_focus
 
+import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.plugins.GeneratedPluginRegistrant
-import android.app.usage.UsageStatsManager
-import android.app.usage.UsageEvents
-import android.content.Context
 import io.flutter.plugin.common.MethodChannel
+import android.app.usage.UsageEvents
+import android.app.usage.UsageStatsManager
+import android.content.Context
 
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "app_status"
@@ -36,7 +36,6 @@ class MainActivity : FlutterActivity() {
         val event = UsageEvents.Event()
 
         var lastForeground = false
-
         while (usageEvents.hasNextEvent()) {
             usageEvents.getNextEvent(event)
             if (event.packageName == targetPackage &&
