@@ -28,7 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  flutter_foreground_task: 5.2.1
+  flutter_foreground_task: 6.0.0
   flutter:
     sdk: flutter
   android_intent_plus: ^4.0.1

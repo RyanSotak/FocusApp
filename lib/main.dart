@@ -4,8 +4,10 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'dart:isolate';
+import 'package:permission_handler/permission_handler.dart' as permission_handler;
+import 'package:permission_handler/permission_handler.dart';
+
 
 
 void foregroundTaskCallback() async {
@@ -169,6 +171,14 @@ class MyTaskHandler extends TaskHandler {
       print('Error: $e');
     }
   }
+
+  @override
+  Future<void> onRepeatEvent(DateTime timestamp, SendPort? sendPort) async {
+    // You can leave this empty if you don't need it,
+    // or just log that it's called for debug purposes.
+    print('[MyTaskHandler] Repeat Event at $timestamp');
+  }
+
 
   @override
   Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
