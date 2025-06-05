@@ -5,6 +5,17 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
 
+void foregroundTaskCallback() async {
+  const channel = MethodChannel('app_status');
+  try {
+    final isRunning = await channel.invokeMethod('isAppInForeground', {
+      'packageName': 'com.whatsapp', // Replace with the package you want to check
+    });
+    print('App in foreground: $isRunning');
+  } catch (e) {
+    print('Error: $e');
+  }
+}
 
 void openUsageAccessSettings() {
   const intent = AndroidIntent(
@@ -42,6 +53,42 @@ class MyApp extends StatelessWidget {
   }
 }
 
+Future<void> startForegroundService() async {
+  FlutterForegroundTask.init(
+    androidNotificationOptions: AndroidNotificationOptions(
+      channelId: 'monitoring_channel_id',
+      channelName: 'App Monitoring',
+      channelDescription: 'Checks if a target app is running',
+      channelImportance: NotificationChannelImportance.LOW,
+      priority: NotificationPriority.LOW,
+      iconData: const NotificationIconData(
+        resType: ResourceType.mipmap,
+        resPrefix: ResourcePrefix.ic,
+        name: 'launcher',
+      ),
+    ),
+    iosNotificationOptions: const IOSNotificationOptions(),
+    foregroundTaskOptions: const ForegroundTaskOptions(
+      interval: 5000, // this will actually be ignored in v5.2.1
+      autoRunOnBoot: false,
+      allowWakeLock: true,
+      allowWifiLock: true,
+    ),
+  );
+
+  // Now safe to call
+  await FlutterForegroundTask.saveData(key: 'callbackHandle', value: foregroundTaskCallback);
+  await FlutterForegroundTask.startService(
+    notificationTitle: 'Monitoring App',
+    notificationText: 'Checking if target app is open...',
+  );
+}
+
+
+Future<void> stopForegroundService() async {
+  await FlutterForegroundTask.stopService();
+}
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -51,8 +98,10 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Home')),
       body: Center(
         child: ElevatedButton(
-          onPressed: openUsageAccessSettings,
-          child: const Text('Grant Usage Access'),
+          // onPressed: openUsageAccessSettings,
+          // child: const Text('Grant Usage Access'),
+          onPressed: startForegroundService,
+          child: const Text('Start Background Monitor'),
             // Navigator.push(
             //   context,
             //   MaterialPageRoute(builder: (context) => const SecondScreen()),
