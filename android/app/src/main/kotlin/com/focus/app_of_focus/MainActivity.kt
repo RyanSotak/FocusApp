@@ -1,54 +1,5 @@
 package com.focus.app_of_focus
 
 import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.plugins.GeneratedPluginRegistrant
-import android.app.usage.UsageStatsManager
-import android.app.usage.UsageEvents
-import android.content.Context
-import io.flutter.plugin.common.MethodChannel
 
-class MainActivity : FlutterActivity() {
-    private val CHANNEL = "app_status"
-
-    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-        super.configureFlutterEngine(flutterEngine)
-
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
-            if (call.method == "isAppInForeground") {
-                val packageName = call.argument<String>("packageName")
-                if (packageName != null) {
-                    val isForeground = isAppCurrentlyForeground(packageName)
-                    result.success(isForeground)
-                } else {
-                    result.error("NO_PACKAGE", "No package name provided", null)
-                }
-            } else {
-                result.notImplemented()
-            }
-        }
-    }
-
-    private fun isAppCurrentlyForeground(targetPackage: String): Boolean {
-        val usm = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val time = System.currentTimeMillis()
-        val usageEvents = usm.queryEvents(time - 10_000, time)
-        val event = UsageEvents.Event()
-
-        var lastForeground = false
-
-        while (usageEvents.hasNextEvent()) {
-            usageEvents.getNextEvent(event)
-            if (event.packageName == targetPackage &&
-                event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                lastForeground = true
-            }
-            if (event.packageName == targetPackage &&
-                event.eventType == UsageEvents.Event.MOVE_TO_BACKGROUND) {
-                lastForeground = false
-            }
-        }
-
-        return lastForeground
-    }
-}
+class MainActivity : FlutterActivity()
