@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 
 
+
 void foregroundTaskCallback() async {
   const channel = MethodChannel('app_status');
   try {
@@ -45,9 +46,16 @@ Future<void> checkIfAppInForeground(String packageName) async {
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  //FlutterForegroundTask.setPluginRegistrant(registerPlugins);
+
   runApp(const MyApp());
 }
 
+// void registerPlugins() {
+//   // Register your custom plugin.
+//   AppStatusPlugin.registerWith();
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -75,22 +83,21 @@ Future<void> startForegroundService() async {
       playSound: true,
       enableVibration: true,
       showWhen: true,
-      channelImportance: NotificationChannelImportance.HIGH,
+      channelImportance: NotificationChannelImportance.HIGH, // NOTE: was channelImportance
       priority: NotificationPriority.HIGH,
-      iconData: const NotificationIconData(
-        resType: ResourceType.mipmap,
-        resPrefix: ResourcePrefix.ic,
-        name: 'launcher',
-      ),
+
     ),
     iosNotificationOptions: const IOSNotificationOptions(),
-    foregroundTaskOptions: const ForegroundTaskOptions(
-      interval: 5000, // this will actually be ignored in v5.2.1
+    foregroundTaskOptions: ForegroundTaskOptions(
+      eventAction: ForegroundTaskEventAction.repeat(500),
       autoRunOnBoot: false,
       allowWakeLock: true,
       allowWifiLock: true,
     ),
+
+
   );
+
 
   // Now safe to call
   await FlutterForegroundTask.startService(
@@ -154,39 +161,31 @@ void callbackDispatcher() {
 
 class MyTaskHandler extends TaskHandler {
   @override
-  Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
+  Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
     print('[MyTaskHandler] Started at $timestamp');
+    // Use starter.sendPort to communicate, if needed
   }
 
   @override
-  Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
-    // This runs periodically in the background
+  void onRepeatEvent(DateTime timestamp) {
+    // This now returns void and takes only DateTime
     const channel = MethodChannel('app_status');
-    try {
-      final isRunning = await channel.invokeMethod('isAppInForeground', {
-        'packageName': 'com.whatsapp',
-      });
+    channel.invokeMethod('isAppInForeground', {
+      'packageName': 'com.whatsapp',
+    }).then((isRunning) {
       print('App in foreground: $isRunning');
-    } catch (e) {
+    }).catchError((e) {
       print('Error: $e');
-    }
+    });
   }
 
   @override
-  Future<void> onRepeatEvent(DateTime timestamp, SendPort? sendPort) async {
-    // You can leave this empty if you don't need it,
-    // or just log that it's called for debug purposes.
-    print('[MyTaskHandler] Repeat Event at $timestamp');
-  }
-
-
-  @override
-  Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
-    print('[MyTaskHandler] Destroyed at $timestamp');
+  Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {
+    print('[MyTaskHandler] Destroyed at $timestamp, isTimeout: $isTimeout');
   }
 
   @override
-  void onButtonPressed(String id) {
+  void onNotificationButtonPressed(String id) {
     print('[MyTaskHandler] Button pressed: $id');
   }
 

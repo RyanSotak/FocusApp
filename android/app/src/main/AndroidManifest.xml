@@ -12,6 +12,24 @@
         android:label="app_of_focus"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <receiver
+            android:name="com.pravera.flutter_foreground_task.receiver.ForegroundReceiver"
+            android:exported="false" />
+        <receiver
+            android:name="com.pravera.flutter_foreground_task.receiver.NotificationButtonReceiver"
+            android:exported="false" />
+        <receiver
+            android:name="com.pravera.flutter_foreground_task.receiver.BootBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.REBOOT"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
+
         <uses-library android:name="android.test.mock" android:required="false"/>
         <service
             android:name="com.pravera.flutter_foreground_task.service.ForegroundService"

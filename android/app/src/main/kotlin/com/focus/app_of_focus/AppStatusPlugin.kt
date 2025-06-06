@@ -8,7 +8,7 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
-class AppStatusPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
+class AppStatusPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private lateinit var channel : MethodChannel
     private lateinit var context: Context
 
