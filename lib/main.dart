@@ -10,7 +10,7 @@ import 'package:permission_handler/permission_handler.dart' as permission_handle
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 
-const MethodChannel channel = MethodChannel('Battery');
+const MethodChannel channel = MethodChannel('app_status');
 
 
 
@@ -23,9 +23,9 @@ class MyTaskHandler extends TaskHandler {
   Future<void> _getBatteryLevel() async {
     String processList;
     try {
-      final processes = await channel.invokeMethod<String>('getRunningApps');
+      final app = await channel.invokeMethod<String>('getForegroundApp');
       //processList = 'Processes: ${processes?.join(', ') ?? "None"}';
-      processList = processes.toString();
+      processList = app.toString();
       if (kDebugMode) {
         debugPrint(processList);
       }
@@ -54,7 +54,7 @@ class MyTaskHandler extends TaskHandler {
 }
 
 void foregroundTaskCallback() async {
-  const channel = MethodChannel('Battery');
+  const channel = MethodChannel('app_status');
   try {
     final isRunning = await channel.invokeMethod('isAppInForeground', {
       'packageName': 'com.whatsapp', // Replace with the package you want to check
