@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 //import 'package:device_apps/device_apps.dart';
 import 'package:android_intent_plus/android_intent.dart';
@@ -211,7 +212,9 @@ void callbackDispatcher() {
 class MyTaskHandler extends TaskHandler {
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-    print('[MyTaskHandler] Started at $timestamp');
+    if (kDebugMode) {
+      debugPrint('[MyTaskHandler] Started at $timestamp');
+    }
     // Use starter.sendPort to communicate, if needed
   }
 
@@ -222,9 +225,13 @@ class MyTaskHandler extends TaskHandler {
     channel.invokeMethod('isAppInForeground', {
       'packageName': 'com.whatsapp',
     }).then((isRunning) {
-      print('App in foreground: $isRunning');
+      if (kDebugMode) {
+        debugPrint('App in foreground: $isRunning');
+      }
     }).catchError((e) {
-      print('Error: $e');
+      if (kDebugMode) {
+        debugPrint('Error: $e');
+      }
     });
   }
 
