@@ -17,6 +17,9 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
 /** AppStatusPlugin */
+val myList = mutableListOf("com.snapchat.android", "com.zhiliaoapp.musically", "com.google.android.youtube", "com.reddit.frontpage", "com.instagram.android", "com.discord")
+
+
 class AppStatusPlugin: FlutterPlugin, MethodCallHandler {
   private lateinit var channel : MethodChannel
   private lateinit var context: Context
@@ -56,6 +59,13 @@ class AppStatusPlugin: FlutterPlugin, MethodCallHandler {
       return null
     }
     val recentStat = usageStatsList.maxByOrNull { it.lastTimeUsed }
+//    if (recentStat?.packageName in myList)
+//    {
+//      val intent = Intent()
+//      intent.setClassName(context.packageName, "${context.packageName}.MainActivity")
+//      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+//      context.startActivity(intent)
+//    }
     return recentStat?.packageName
   }
 

@@ -12,7 +12,7 @@ import 'dart:async';
 
 const MethodChannel channel = MethodChannel('app_status');
 
-
+List<String> myList = ["com.snapchat.android", "com.zhiliaoapp.musically", "com.google.android.youtube", "com.reddit.frontpage", "com.instagram.android", "com.discord"];
 
 class MyTaskHandler extends TaskHandler {
   @override
@@ -26,6 +26,12 @@ class MyTaskHandler extends TaskHandler {
       final app = await channel.invokeMethod<String>('getForegroundApp');
       //processList = 'Processes: ${processes?.join(', ') ?? "None"}';
       processList = app.toString();
+
+      // if (myList.contains(processList))
+      //   {
+      //     openUsageAccessSettings;
+      //   }
+
       if (kDebugMode) {
         debugPrint(processList);
       }
